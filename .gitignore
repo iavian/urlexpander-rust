@@ -1,3 +1,5 @@
 /target
 .vscode/launch.json
+.vscode
 Cargo.lock
+.DS_Store

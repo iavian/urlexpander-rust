@@ -11,7 +11,6 @@ warp = "0.3.1"
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1.5", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
-memcache = "*"
 
 [profile.dev]
 opt-level = 0
