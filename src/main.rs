@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::env;
 use warp::{http::StatusCode, Filter};
-mod expander;
+
+mod resolver;
 
 #[tokio::main]
 async fn main() {
@@ -23,7 +24,7 @@ async fn main() {
 }
 
 async fn resolve(query: ResolverQuery) -> Result<impl warp::Reply, warp::Rejection> {
-    let resolved_url = match expander::resolve(&query.url).await {
+    let resolved_url = match resolver::resolve(&query.url).await {
         Ok(url) => url,
         Err(_err) => String::from(&query.url),
     };
@@ -45,4 +46,11 @@ struct ResolverQuery {
 struct ResolverResult {
     surl: String,
     eurl: String,
+}
+
+pub trait Summary {
+    fn summarize_author(&self) -> String;
+    fn summarize(&self) -> &'static str {
+        ""
+    }
 }

@@ -9,8 +9,11 @@ edition = "2018"
 [dependencies]
 warp = "0.3.1"
 reqwest = { version = "0.11", features = ["json"] }
-tokio = { version = "1.5", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.6", features = ["full"] }
+serde = { version = "1.0.126", features = ["derive"] }
+rsmc-tokio = "*"
+rsmc-core = "*"
+mobc = "0.5"
 
 [profile.dev]
 opt-level = 0
