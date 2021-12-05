@@ -11,9 +11,8 @@ warp = "0.3.1"
 reqwest = { version = "0.11", features = ["json","brotli","gzip"] }
 tokio = { version = "1.14", features = ["full"] }
 serde = { version = "1.0.130", features = ["derive"] }
-# rsmc-tokio = "*"
-# rsmc-core = "*"
-# mobc = "0.7"
+memcache-async = {version="0.6.1",optional = true }
+futures = { version = "0.3.18" , optional = true }
 
 [profile.dev]
 opt-level = 0
@@ -21,3 +20,7 @@ opt-level = 0
 [profile.release]
 opt-level = 3
 panic = 'abort'
+
+[features]
+default = ["memcache"]
+memcache = ["memcache-async", "futures"]
