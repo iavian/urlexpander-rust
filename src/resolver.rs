@@ -13,7 +13,6 @@ pub async fn resolve(url: &str) -> Result<String, reqwest::Error> {
    let client = ClientBuilder::new()
        .timeout(Duration::new(5, 0))
        .redirect(Policy::limited(4))
-       .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15")
        .default_headers(headers)
        .build()?;
    let resp = client.get(url).send().await?;
