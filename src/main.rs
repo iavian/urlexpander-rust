@@ -34,6 +34,8 @@ async fn resolve(query: ResolverQuery) -> Result<impl warp::Reply, warp::Rejecti
         surl: query.url,
     };
 
+    println!("{:?}", &response);
+
     Ok(warp::reply::json(&response))
 }
 
@@ -42,15 +44,8 @@ struct ResolverQuery {
     url: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct ResolverResult {
     surl: String,
     eurl: String,
-}
-
-pub trait Summary {
-    fn summarize_author(&self) -> String;
-    fn summarize(&self) -> &'static str {
-        ""
-    }
 }

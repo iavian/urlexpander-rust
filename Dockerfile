@@ -8,14 +8,9 @@ RUN rm src/*.rs
 ADD . ./
 
 RUN cargo build --release
-RUN ls
 
-FROM debian:buster-slim
+FROM archlinux:latest
 ARG APP=/usr/src/app
-
-RUN apt-get update \
-    && apt-get install -y ca-certificates tzdata \
-    && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8080
 
