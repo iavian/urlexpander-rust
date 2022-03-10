@@ -1,6 +1,6 @@
-# fly.toml file generated for young-morning-4693 on 2021-12-04T07:44:18+05:30
+# fly.toml file generated for url-expander-iavian on 2022-03-10T11:15:39+05:30
 
-app = "young-morning-4693"
+app = "url-expander-iavian"
 
 kill_signal = "SIGINT"
 kill_timeout = 5
@@ -35,5 +35,5 @@ processes = []
   [[services.tcp_checks]]
     grace_period = "1s"
     interval = "15s"
-    restart_limit = 10
+    restart_limit = 0
     timeout = "2s"
