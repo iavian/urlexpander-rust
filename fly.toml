@@ -1,6 +1,6 @@
-# fly.toml file generated for iavian-url-expander-rust on 2022-04-29T12:44:20+05:30
+# fly.toml file generated for iavian-url-resolver-rust on 2022-05-03T18:38:23+05:30
 
-app = "iavian-url-expander-rust"
+app = "iavian-url-resolver-rust"
 
 kill_signal = "SIGINT"
 kill_timeout = 5
