@@ -1,4 +1,4 @@
-FROM rust:1.57 as builder
+FROM rust:1.60 as builder
 
 RUN USER=root cargo new --bin rust-docker-web
 
