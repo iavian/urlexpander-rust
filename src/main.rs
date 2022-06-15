@@ -24,7 +24,8 @@ async fn main() {
 }
 
 async fn resolve(query: ResolverQuery) -> Result<impl warp::Reply, warp::Rejection> {
-    let resolved_url = match resolver::resolve(&query.url).await {
+    let prime = &query.prime.unwrap_or(false);
+    let resolved_url = match resolver::resolve(&query.url, &prime).await {
         Ok(url) => url,
         Err(_err) => String::from(&query.url),
     };
@@ -42,6 +43,7 @@ async fn resolve(query: ResolverQuery) -> Result<impl warp::Reply, warp::Rejecti
 #[derive(Deserialize)]
 struct ResolverQuery {
     url: String,
+    prime: Option<bool>,
 }
 
 #[derive(Serialize, Debug)]

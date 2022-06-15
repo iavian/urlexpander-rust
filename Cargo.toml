@@ -1,15 +1,15 @@
 [package]
 name = "url-resolver"
-version = "0.1.0"
+version = "0.1.2"
 authors = ["vjy <reg@iavian.com>"]
 edition = "2021"
 
 [dependencies]
-warp = "0.3.1"
+warp = "0.3.2"
 reqwest = { version = "0.11", features = ["json","brotli","gzip"] }
-tokio = { version = "1.18.0", features = ["full"] }
-serde = { version = "1.0.136", features = ["derive"] }
-memcache-async = {version="0.6.3", optional = true }
+tokio = { version = "1.19.2", features = ["full"] }
+serde = { version = "1.0.137", features = ["derive"] }
+memcache-async = {version="0.6.4", optional = true }
 futures = { version = "0.3.21", optional = true }
 
 [profile.dev]

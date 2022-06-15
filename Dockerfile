@@ -1,31 +1,9 @@
-FROM rust:1.60 as builder
+FROM rust:1.61
 
-RUN USER=root cargo new --bin rust-docker-web
+COPY ./ ./
 
-WORKDIR /rust-docker-web
-COPY ./Cargo.toml ./Cargo.toml
-RUN rm src/*.rs
-ADD . ./
-
+# Build your program for release
 RUN cargo build --release
 
-FROM archlinux:latest
-ARG APP=/usr/src/app
-
-EXPOSE 8080
-
-ENV TZ=Etc/UTC \
-    APP_USER=appuser
-
-RUN groupadd $APP_USER \
-    && useradd -g $APP_USER $APP_USER \
-    && mkdir -p ${APP}
-
-COPY --from=builder /rust-docker-web/target/release/url-resolver ${APP}/url-resolver
-
-RUN chown -R $APP_USER:$APP_USER ${APP}
-
-USER $APP_USER
-WORKDIR ${APP}
-
-CMD ["./url-resolver"]
+# Run the binary
+CMD ["./target/release/url-resolver"]
