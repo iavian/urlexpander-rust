@@ -27,7 +27,9 @@ async fn resolve(query: ResolverQuery) -> Result<impl warp::Reply, warp::Rejecti
     let prime = &query.prime.unwrap_or(false);
     let resolved_url = match resolver::resolve(&query.url, &prime).await {
         Ok(url) => url,
-        Err(_err) => String::from(&query.url),
+        Err(_err) => {
+            println!("{}", _err);
+            String::from(&query.url)},
     };
 
     let response = ResolverResult {
