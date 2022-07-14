@@ -1,3 +1,4 @@
+use regex::RegexBuilder;
 use reqwest::redirect::Policy;
 use reqwest::ClientBuilder;
 use reqwest::{header, Url};
@@ -17,7 +18,7 @@ pub async fn resolve(url: &str, prime: &bool) -> Result<String, reqwest::Error> 
         let stream =
             TcpStream::connect("memcached.iavian.net:11211").expect("Failed to create stream");
         let mut cache = Protocol::new(AllowStdIo::new(stream));
-        let key = format!("z_{}", &url);
+        let key = format!("4_{}", &url);
         if !prime {
             let value = cache.get(&key).await.unwrap_or_default();
             let value = String::from_utf8_lossy(&value);
@@ -25,14 +26,14 @@ pub async fn resolve(url: &str, prime: &bool) -> Result<String, reqwest::Error> 
                 return Ok(value.to_string());
             }
         }
-        let resolved_url = _resolve(&url).await?;
+        let resolved_url = _resolve_meta(&url).await?;
         let _ = cache.set(&key, resolved_url.as_bytes(), 0).await;
         Ok(resolved_url)
     }
 
     #[cfg(not(feature = "memcache"))]
     {
-        _resolve(&url).await
+        _resolve_meta(&url).await
     }
 }
 
@@ -50,6 +51,34 @@ async fn _resolve(url: &str) -> Result<String, reqwest::Error> {
     let resp = client.get(url).send().await?;
     let url = resp.url();
     let resolved_url = clean_query(url.as_str()).unwrap_or(String::from(url.as_ref()));
+    Ok(resolved_url)
+}
+
+async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
+    let mut headers = header::HeaderMap::new();
+    headers.insert(
+        "Referer",
+        header::HeaderValue::from_static("https://google.com"),
+    );
+    let client = ClientBuilder::new()
+        .timeout(Duration::new(20, 0))
+        .redirect(Policy::limited(10))
+        .default_headers(headers)
+        .build()?;
+    let resp = client.get(purl).send().await?;
+    let url = { resp.url().to_owned() };
+    let body = { resp.text().await };
+    let redirect = match body {
+        Ok(body) => {
+            let reg = RegexBuilder::new(r##"(?:http-equiv="refresh".*?)?content="\d+;url=(.*?)"(?:.*?http-equiv="refresh")?"##).case_insensitive(true).build().unwrap();
+            match reg.captures(&body) {
+                Some(caps) => String::from(caps.get(1).unwrap().as_str()),
+                None => url.to_string(),
+            }
+        }
+        Err(_) => url.to_string(),
+    };
+    let resolved_url = clean_query(&redirect).unwrap_or(String::from(purl));
     Ok(resolved_url)
 }
 
