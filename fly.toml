@@ -1,6 +1,6 @@
-# fly.toml file generated for iavian-rust-resolver on 2022-06-20T11:50:42+05:30
+# fly.toml file generated for iavian-rust-url-resolver on 2022-10-03T14:49:45+05:30
 
-app = "iavian-rust-resolver"
+app = "iavian-rust-url-resolver"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
