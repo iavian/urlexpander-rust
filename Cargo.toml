@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 warp = "0.3.3"
 reqwest = { version = "0.11", features = ["json", "brotli", "gzip", "rustls"] }
-tokio = { version = "1.24.1", features = ["full"] }
+tokio = { version = "1.25.0", features = ["full"] }
 serde = { version = "1.0.152", features = ["derive"] }
 memcache-async = {version="0.6.4", optional = true }
 futures = { version = "0.3.25", optional = true }

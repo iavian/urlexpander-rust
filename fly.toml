@@ -1,4 +1,4 @@
-# fly.toml file generated for iavian-rust-url-resolver on 2022-10-28T18:49:50+05:30
+# fly.toml file generated for iavian-rust-url-resolver on 2023-01-30T17:17:23+05:30
 
 app = "iavian-rust-url-resolver"
 kill_signal = "SIGINT"
