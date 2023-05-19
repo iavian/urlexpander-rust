@@ -1,55 +1,27 @@
-use serde::{Deserialize, Serialize};
+use actix_web::{middleware, App, HttpServer};
 use std::env;
-use warp::{http::StatusCode, Filter};
 
-mod resolver;
+pub mod resolver;
+pub mod proxy;
+mod service;
 
-#[tokio::main]
-async fn main() {
-    let resolve_route = warp::get()
-        .and(warp::query())
-        .and(warp::path::end())
-        .and_then(resolve);
-
-    let health_route = warp::path!("ping").map(|| StatusCode::OK);
-    let routes = health_route.or(resolve_route);
-
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
     let port: u16 = env::var("PORT")
         .unwrap_or_else(|_| String::from("8080"))
         .parse()
         .expect("PORT must be a number");
 
-    println!("Running on port {}", port);
-    warp::serve(routes).run(([0, 0, 0, 0], port)).await
-}
+    let binding_interface = format!("0.0.0.0:{}", port);
+    println!("Listening at {}", binding_interface);
 
-async fn resolve(query: ResolverQuery) -> Result<impl warp::Reply, warp::Rejection> {
-    let prime = &query.prime.unwrap_or(false);
-    let resolved_url = match resolver::resolve(&query.url, &prime).await {
-        Ok(url) => url,
-        Err(_err) => {
-            println!("{}", _err);
-            String::from(&query.url)},
-    };
-
-    let response = ResolverResult {
-        eurl: resolved_url,
-        surl: query.url,
-    };
-
-    println!("{:?}", &response);
-
-    Ok(warp::reply::json(&response))
-}
-
-#[derive(Deserialize)]
-struct ResolverQuery {
-    url: String,
-    prime: Option<bool>,
-}
-
-#[derive(Serialize, Debug)]
-struct ResolverResult {
-    surl: String,
-    eurl: String,
+    HttpServer::new(move || {
+        App::new()
+            .wrap(middleware::DefaultHeaders::new().add(("X-Version", env!("CARGO_PKG_VERSION"))))
+            .service(service::resolve)
+            .service(service::proxy)
+    })
+    .bind(binding_interface)?
+    .run()
+    .await
 }

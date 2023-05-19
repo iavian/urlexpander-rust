@@ -12,7 +12,7 @@ use memcache_async::ascii::Protocol;
 #[cfg(feature = "memcache")]
 use std::net::TcpStream;
 
-pub async fn resolve(url: &str, prime: &bool) -> Result<String, reqwest::Error> {
+pub async fn resolve_url(url: &str, prime: &bool) -> Result<String, reqwest::Error> {
     #[cfg(feature = "memcache")]
     {
         let stream =
@@ -27,7 +27,9 @@ pub async fn resolve(url: &str, prime: &bool) -> Result<String, reqwest::Error> 
             }
         }
         let resolved_url = _resolve_meta(&url).await?;
-        let _ = cache.set(&key, resolved_url.as_bytes(), 0).await;
+        if let Ok(_) = cache.set(&key, resolved_url.as_bytes(), 0).await {
+            println!("Memcache set for url {}", url);
+        }
         Ok(resolved_url)
     }
 
@@ -43,9 +45,23 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
         "Referer",
         header::HeaderValue::from_static("https://google.com/"),
     );
+    headers.insert(
+        "Accept",
+        header::HeaderValue::from_static("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+    );
+    headers.insert(
+        "Accept-Language",
+        header::HeaderValue::from_static("en-GB,en;q=0.9"),
+    );
+    headers.insert(
+        "User-Agent",
+        header::HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16."),
+    );
     let client = ClientBuilder::new()
         .timeout(Duration::new(20, 0))
         .redirect(Policy::limited(10))
+        .brotli(true)
+        .gzip(true)
         .default_headers(headers)
         .build()?;
     let resp = client.get(purl).send().await?;

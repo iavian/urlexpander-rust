@@ -1,0 +1,2 @@
+GET http://localhost:8081/?prime=true&url=https://therightscoop.com/?p=386874 HTTP/1.1
+

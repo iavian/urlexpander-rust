@@ -1,17 +1,18 @@
 [package]
 name = "url-resolver"
-version = "0.1.2"
-authors = ["vjy <reg@iavian.com>"]
 edition = "2021"
+version = "0.1.4"
+authors = ["vjy <reg@iavian.com>"]
 
 [dependencies]
-warp = "0.3.5"
+actix-web = "4.3.1"
+bytes = "1.4.0"
 reqwest = { version = "0.11", features = ["json", "brotli", "gzip", "rustls"] }
-tokio = { version = "1.28.1", features = ["full"] }
-serde = { version = "1.0.163", features = ["derive"] }
+tokio = { version = "1.31.0", features = ["full"] }
+serde = { version = "1.0.183", features = ["derive"] }
 memcache-async = {version="0.6.4", optional = true }
 futures = { version = "0.3.28", optional = true }
-regex = "1"
+regex = "1.9.3"
 
 [profile.dev]
 opt-level = 0
@@ -23,3 +24,4 @@ panic = 'abort'
 [features]
 default = ["memcache"]
 memcache = ["memcache-async", "futures"]
+
