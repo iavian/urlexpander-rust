@@ -1,9 +1,22 @@
-FROM rust:1.71
+FROM alpine:latest as builder
+
+RUN apk add --update --no-cache --repository https://dl-3.alpinelinux.org/alpine/latest-stable/community --repository https://dl-3.alpinelinux.org/alpine/latest-stable/main rust cargo openssl-dev
+
+WORKDIR /app
 
 COPY ./ ./
 
-# Build your program for release
 RUN cargo build --release
 
-# Run the binary
-CMD ["./target/release/url-resolver"]
+FROM alpine:latest
+
+RUN apk add --update --no-cache --repository https://dl-3.alpinelinux.org/alpine/latest-stable/community --repository https://dl-3.alpinelinux.org/alpine/latest-stable/main libgcc
+
+WORKDIR /app
+
+COPY --from=builder /app/target/release/url-resolver /app/url_resolver
+
+EXPOSE 8080
+
+#Run the binary
+CMD ["/app/url_resolver"]
