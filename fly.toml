@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "iavian-rust-url-resolver"
+app = "iavian-new-url-resolver"
 primary_region = "ewr"
 
 [build]
