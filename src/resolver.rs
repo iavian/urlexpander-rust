@@ -59,7 +59,9 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
         "User-Agent",
         header::HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16."),
     );
+    let proxy = reqwest::Proxy::http("http://proxy.iavian.net:38080")?;
     let client = ClientBuilder::new()
+        .proxy(proxy)
         .timeout(Duration::new(20, 0))
         .redirect(Policy::limited(10))
         .brotli(true)
