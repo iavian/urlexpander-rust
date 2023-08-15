@@ -43,6 +43,7 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
     let client = client_factory(false)?;
     let mut resp = client.get(purl).send().await?;
     if resp.status().is_client_error() {
+        println!("Using proxy");
         let client = client_factory(true)?;
         resp = client.get(purl).send().await?;
     }
