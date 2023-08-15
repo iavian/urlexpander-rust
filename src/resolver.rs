@@ -67,9 +67,7 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
         .default_headers(headers)
         .build()?;
     let resp = client.get(purl).send().await?;
-    if resp.status().is_server_error() {
-        println!("Server error {}", resp.status())
-    }
+    println!("Server code {}", resp.status());
     let url = { resp.url().to_owned() };
     let body = { resp.text().await };
     let redirect = match body {
