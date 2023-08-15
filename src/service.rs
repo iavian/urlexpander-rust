@@ -44,8 +44,8 @@ struct ResolverQuery {
     prime: Option<bool>,
 }
 
-#[derive(Serialize, Debug)]
-struct ResolverResult {
-    surl: String,
-    eurl: String,
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ResolverResult {
+    pub surl: String,
+    pub eurl: String,
 }

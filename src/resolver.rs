@@ -1,16 +1,18 @@
-use regex::RegexBuilder;
-use reqwest::redirect::Policy;
-use reqwest::{header, Client, Url};
-use reqwest::ClientBuilder;
-use std::collections::HashMap;
-use std::time::Duration;
-
 #[cfg(feature = "memcache")]
 use futures::io::AllowStdIo;
 #[cfg(feature = "memcache")]
 use memcache_async::ascii::Protocol;
+use regex::RegexBuilder;
+use reqwest::redirect::Policy;
+use reqwest::ClientBuilder;
+use reqwest::{header, Url};
+use std::collections::HashMap;
 #[cfg(feature = "memcache")]
 use std::net::TcpStream;
+use std::time::Duration;
+use url;
+
+use crate::service::ResolverResult;
 
 pub async fn resolve_url(url: &str, prime: &bool) -> Result<String, reqwest::Error> {
     #[cfg(feature = "memcache")]
@@ -40,30 +42,6 @@ pub async fn resolve_url(url: &str, prime: &bool) -> Result<String, reqwest::Err
 }
 
 async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
-    let client = client_factory(false)?;
-    let mut resp = client.get(purl).send().await?;
-    if resp.status().is_client_error() {
-        let client = client_factory(true)?;
-        resp = client.get(purl).send().await?;
-    }
-    println!("Server code {}", resp.status());
-    let url = { resp.url().to_owned() };
-    let body = { resp.text().await };
-    let redirect = match body {
-        Ok(body) => {
-            let reg = RegexBuilder::new(r##"(?:http-equiv="refresh".*?)?content="\d+;url=(.*?)"(?:.*?http-equiv="refresh")?"##).case_insensitive(true).build().unwrap();
-            match reg.captures(&body) {
-                Some(caps) => String::from(caps.get(1).unwrap().as_str()),
-                None => url.to_string(),
-            }
-        }
-        Err(_) => url.to_string(),
-    };
-    let resolved_url = clean_query(&redirect).unwrap_or(String::from(purl));
-    Ok(resolved_url)
-}
-
-fn client_factory(use_proxy: bool) -> Result<Client, reqwest::Error> {
     let mut headers = header::HeaderMap::new();
     headers.insert(
         "Referer",
@@ -83,19 +61,35 @@ fn client_factory(use_proxy: bool) -> Result<Client, reqwest::Error> {
         "User-Agent",
         header::HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16."),
     );
-    let mut builder = ClientBuilder::new()
+    let client = ClientBuilder::new()
         .timeout(Duration::new(20, 0))
         .redirect(Policy::limited(10))
         .brotli(true)
         .gzip(true)
-        .default_headers(headers);
+        .default_headers(headers)
+        .build()?;
 
-    if use_proxy {
-        let proxy = reqwest::Proxy::http("http://node.iavian.net:38080")?;
-        builder = builder.proxy(proxy);
-        println!("Using proxy");
+    let resp = client.get(purl).send().await?;
+    if resp.status().is_client_error() {
+        println!("Server code {}", resp.status());
+        if let Some(result) = call_external(purl).await {
+            return Ok(result.eurl);
+        }
     }
-    return builder.build();
+    let url = { resp.url().to_owned() };
+    let body = { resp.text().await };
+    let redirect = match body {
+        Ok(body) => {
+            let reg = RegexBuilder::new(r##"(?:http-equiv="refresh".*?)?content="\d+;url=(.*?)"(?:.*?http-equiv="refresh")?"##).case_insensitive(true).build().unwrap();
+            match reg.captures(&body) {
+                Some(caps) => String::from(caps.get(1).unwrap().as_str()),
+                None => url.to_string(),
+            }
+        }
+        Err(_) => url.to_string(),
+    };
+    let resolved_url = clean_query(&redirect).unwrap_or(String::from(purl));
+    Ok(resolved_url)
 }
 
 fn clean_query(url: &str) -> Option<String> {
@@ -115,4 +109,19 @@ fn clean_query(url: &str) -> Option<String> {
         url.query_pairs_mut().append_pair(&k, &v);
     }
     Some(url.into())
+}
+
+async fn call_external(purl: &str) -> Option<ResolverResult> {
+    if let Ok(client) = ClientBuilder::new().timeout(Duration::new(40, 0)).build() {
+        let purl = url::form_urlencoded::Serializer::new(String::from(purl)).finish();
+        let purl = format!("https://open.webkit.iavian.net/resolve?url={}", purl);
+        if let Ok(resp) = client.get(&purl).send().await {
+            let c: Result<ResolverResult, reqwest::Error> = resp.json().await;
+            match c {
+                Ok(result) => return Some(result),
+                Err(_) => {}
+            }
+        }
+    }
+    None
 }
