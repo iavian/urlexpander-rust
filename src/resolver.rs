@@ -47,7 +47,9 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
     );
     headers.insert(
         "Accept",
-        header::HeaderValue::from_static("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+        header::HeaderValue::from_static(
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        ),
     );
     headers.insert(
         "Accept-Language",
@@ -65,6 +67,9 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
         .default_headers(headers)
         .build()?;
     let resp = client.get(purl).send().await?;
+    if resp.status().is_server_error() {
+        println!("Server error {}", resp.status())
+    }
     let url = { resp.url().to_owned() };
     let body = { resp.text().await };
     let redirect = match body {
