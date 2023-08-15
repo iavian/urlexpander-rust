@@ -75,7 +75,7 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
         if let Some(result) = call_external(purl).await {
             return Ok(result.eurl);
         } else {
-            println!("Remote faild as well for url {}", purl);
+            println!("Remote failed as well for url {}", purl);
         }
     }
     let url = { resp.url().to_owned() };
