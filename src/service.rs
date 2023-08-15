@@ -19,8 +19,6 @@ async fn resolve(query: web::Query<ResolverQuery>) -> impl Responder {
         eurl: resolved_url,
         surl: String::from(&query.url),
     };
-    
-    println!("{:?}", response);
     return HttpResponse::Ok().json(response);
 }
 
