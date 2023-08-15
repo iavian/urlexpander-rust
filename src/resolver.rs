@@ -1,7 +1,7 @@
 use regex::RegexBuilder;
 use reqwest::redirect::Policy;
 use reqwest::{header, Client, Url};
-use reqwest::{ClientBuilder, Response};
+use reqwest::ClientBuilder;
 use std::collections::HashMap;
 use std::time::Duration;
 
