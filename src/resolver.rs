@@ -43,7 +43,6 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
     let client = client_factory(false)?;
     let mut resp = client.get(purl).send().await?;
     if resp.status().is_client_error() {
-        println!("Using proxy");
         let client = client_factory(true)?;
         resp = client.get(purl).send().await?;
     }
@@ -94,6 +93,7 @@ fn client_factory(use_proxy: bool) -> Result<Client, reqwest::Error> {
     if use_proxy {
         let proxy = reqwest::Proxy::http("http://node.iavian.net:38080")?;
         builder = builder.proxy(proxy);
+        println!("Using proxy");
     }
     return builder.build();
 }
