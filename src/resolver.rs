@@ -71,7 +71,7 @@ async fn _resolve_meta(purl: &str) -> Result<String, reqwest::Error> {
 
     let resp = client.get(purl).send().await?;
     if resp.status().is_client_error() {
-        println!("Server code {}", resp.status());
+        println!("Server code {} for url {}", resp.status(), purl);
         if let Some(result) = call_external(purl).await {
             return Ok(result.eurl);
         } else {
