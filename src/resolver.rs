@@ -29,7 +29,8 @@ pub async fn resolve_url(url: &str, prime: &bool) -> Result<String, reqwest::Err
             }
         }
         let resolved_url = _resolve_meta(&url).await?;
-        if let Ok(_) = cache.set(&key, resolved_url.as_bytes(), 0).await {
+        let expiry = if resolved_url == url { 7200 } else { 0 };
+        if let Ok(_) = cache.set(&key, resolved_url.as_bytes(), expiry).await {
             println!("Memcache set for url {} - {}", url, resolved_url);
         }
         Ok(resolved_url)
