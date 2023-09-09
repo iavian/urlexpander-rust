@@ -20,7 +20,7 @@ pub async fn resolve_url(url: &str, prime: &bool) -> Result<String, reqwest::Err
         let stream =
             TcpStream::connect("mcache.iavian.net:11211").expect("Failed to create stream");
         let mut cache = Protocol::new(AllowStdIo::new(stream));
-        let key = format!("1-1{}", &url);
+        let key = format!("2-{}", &url);
         if !prime {
             let value = cache.get(&key).await.unwrap_or_default();
             let value = String::from_utf8_lossy(&value);
