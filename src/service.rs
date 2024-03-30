@@ -26,10 +26,12 @@ async fn resolve(query: web::Query<ResolverQuery>) -> impl Responder {
 async fn proxy(query: web::Query<ResolverQuery>) -> impl Responder {
     if let Ok(result) = proxy_url(&query.url).await {
         if let Some(result) = result {
-            let mut response = HttpResponse::Ok();
+            let mut response: actix_web::HttpResponseBuilder = HttpResponse::Ok();
             for header in result.headers.iter() {
                 if header.0.as_str().to_lowercase() != "content-encoding" {
-                    response.append_header(header);
+                    let key = header.0.to_string();
+                    let value = header.1.to_str().unwrap_or("s");
+                    response.append_header((key, value));
                 }
             }
             return response.body(result.bytes);
