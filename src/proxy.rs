@@ -36,13 +36,10 @@ pub async fn proxy_url(purl: &str) -> Result<Option<ProxyResult>, reqwest::Error
         .build()?;
 
     let resp = client.get(purl).send().await?;
-    let h = resp.headers().clone();
+    let headers = resp.headers().clone();
 
     if let Ok(b) = resp.bytes().await {
-        let result = ProxyResult {
-            bytes: b,
-            headers: h,
-        };
+        let result = ProxyResult { bytes: b, headers };
         return Ok(Some(result));
     }
     return Ok(None);
