@@ -40,8 +40,10 @@ pub async fn proxy_url(purl: &str) -> Result<Option<ProxyResult>, reqwest::Error
 
     if let Ok(b) = resp.bytes().await {
         let result = ProxyResult { bytes: b, headers };
+        println!("Proxy worked for url:{}", purl);
         return Ok(Some(result));
     }
+    println!("Proxy failed for url:{}", purl);
     return Ok(None);
 }
 
