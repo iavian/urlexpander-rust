@@ -1,14 +1,11 @@
 #[cfg(feature = "memcache")]
-use futures::io::AllowStdIo;
-#[cfg(feature = "memcache")]
-use memcache_async::ascii::Protocol;
+use {futures::io::AllowStdIo, memcache_async::ascii::Protocol, std::net::TcpStream};
+
 use regex::RegexBuilder;
 use reqwest::redirect::Policy;
 use reqwest::ClientBuilder;
 use reqwest::{header, Url};
 use std::collections::HashMap;
-#[cfg(feature = "memcache")]
-use std::net::TcpStream;
 use std::time::Duration;
 use url;
 
